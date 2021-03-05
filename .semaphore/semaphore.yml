@@ -1,13 +1,54 @@
-version: v1.0
-name: Initial Pipeline
+version: "v1.0"
+name: Monorepo project
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
+
 blocks:
-  - name: 'Block #1'
+  - name: Test WEB server
+    dependencies: []
+    run:
+      when: "change_in('/web-app/', {default_branch: 'main'}))"
     task:
       jobs:
-        - name: 'Job #1'
-          commands:
+        - commands:
             - checkout
+            - cd web-app
+            - make test
+
+  - name: Test iOS client
+    dependencies: []
+    run:
+      when: "change_in('/ios/'), {default_branch: 'main'})"
+    task:
+      agent:
+        machine:
+          type: a1-standard-4
+          os_image: macos-xcode12
+      jobs:
+        - commands:
+            - checkout
+            - cd ios
+            - make test
+
+  - name: Test docs page
+    dependencies: []
+    run:
+      when: "change_in('/docs/'), {default_branch: 'main'})"
+    task:
+      jobs:
+        - commands:
+            - checkout
+            - cd docs
+            - make test
+
+  - name: Integration tests
+    dependencies: ["Test WEB server", "Test iOS client"]
+    run:
+      when: "change_in(['/web-app/', '/ios/']), {default_branch: 'main'})"
+    task:
+      jobs:
+        - commands:
+            - checkout
+            - make integration-tests
