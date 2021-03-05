@@ -9,7 +9,7 @@ blocks:
   - name: Test WEB server
     dependencies: []
     run:
-      when: "change_in('/web-app/', {default_branch: 'main'}))"
+      when: "change_in('/web-app/', {default_branch: 'main'})"
     task:
       jobs:
         - commands:
@@ -20,7 +20,7 @@ blocks:
   - name: Test iOS client
     dependencies: []
     run:
-      when: "change_in('/ios/'), {default_branch: 'main'})"
+      when: "change_in('/ios/', {default_branch: 'main'})"
     task:
       agent:
         machine:
@@ -35,7 +35,7 @@ blocks:
   - name: Test docs page
     dependencies: []
     run:
-      when: "change_in('/docs/'), {default_branch: 'main'})"
+      when: "change_in('/docs/', {default_branch: 'main'})"
     task:
       jobs:
         - commands:
@@ -46,7 +46,7 @@ blocks:
   - name: Integration tests
     dependencies: ["Test WEB server", "Test iOS client"]
     run:
-      when: "change_in(['/web-app/', '/ios/']), {default_branch: 'main'})"
+      when: "change_in(['/web-app/', '/ios/'], {default_branch: 'main'})"
     task:
       jobs:
         - commands:
