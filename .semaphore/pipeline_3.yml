@@ -12,5 +12,5 @@ blocks:
           commands:
             - checkout
             - cd fortunes-server
-            - cp dockerize/nextjs/Dockerfile .
+            - cp ../../dockerize/nextjs/Dockerfile .
             - docker build -t test-nextjs .
