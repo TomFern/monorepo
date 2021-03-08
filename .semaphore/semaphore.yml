@@ -43,6 +43,6 @@ blocks:
             - checkout
             - cd dockerize/golang
             - artifact pull workflow fortunes
-            - cp ../fortunes-data/* .
+            - cp ../../fortunes-data/* .
             - mv fortunes app
             - docker build -t test-go .
