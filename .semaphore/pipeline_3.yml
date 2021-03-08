@@ -12,5 +12,7 @@ blocks:
           commands:
             - checkout
             - cd fortunes-server
+            - cache restore
+            - cache restore next-$SEMAPHORE_GIT_BRANCH
             - cp ../../dockerize/nextjs/Dockerfile .
             - docker build -t test-nextjs .
