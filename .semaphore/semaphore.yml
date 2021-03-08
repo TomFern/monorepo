@@ -73,7 +73,7 @@ blocks:
       jobs:
         - name: Test server
           commands:
-            - jest
+            - yarn test
 promotions:
   - name: Dockerize API
     pipeline_file: pipeline_2.yml
