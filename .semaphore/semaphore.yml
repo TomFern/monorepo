@@ -15,7 +15,7 @@ blocks:
             - export GOPATH=~/go
             - 'export PATH=/home/semaphore/go/bin:$PATH'
             - checkout
-            - cd fortunes/api
+            - cd fortunes-api
             - go build .
             - artifact push workflow fortunes
   - name: Server Test
@@ -27,7 +27,7 @@ blocks:
           - export GOPATH=~/go
           - 'export PATH=/home/semaphore/go/bin:$PATH'
           - checkout
-          - cd server/fortunes
+          - cd fortunes-api
       jobs:
         - name: Unit test
           commands:
