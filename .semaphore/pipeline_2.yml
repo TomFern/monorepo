@@ -1,0 +1,18 @@
+version: v1.0
+name: Pipeline 2
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Dockerize
+    task:
+      jobs:
+        - name: Docker build
+          commands:
+            - checkout
+            - cd dockerize/golang
+            - artifact pull workflow fortunes
+            - cp ../../fortunes-data/* .
+            - mv fortunes app
+            - docker build -t test-go .

@@ -5,10 +5,10 @@ agent:
     type: e1-standard-2
     os_image: ubuntu1804
 blocks:
-  - name: Server Build
+  - name: Build API
     task:
       jobs:
-        - name: Build Binary
+        - name: Go build
           commands:
             - sem-version go 1.16
             - export GO111MODULE=on
@@ -18,7 +18,8 @@ blocks:
             - cd fortunes-api
             - go build .
             - artifact push workflow fortunes
-  - name: Server Test
+    dependencies: []
+  - name: Test API
     task:
       prologue:
         commands:
@@ -35,14 +36,46 @@ blocks:
             - chmod a+x fortunes
             - ./fortunes &
             - go test ./...
-  - name: Dockerize
+    dependencies:
+      - Build API
+  - name: Install dependencies
+    dependencies: []
     task:
       jobs:
-        - name: Dockerize
+        - name: Yarn install
           commands:
             - checkout
-            - cd dockerize/golang
-            - artifact pull workflow fortunes
-            - cp ../../fortunes-data/* .
-            - mv fortunes app
-            - docker build -t test-go .
+            - cd fortunes-server
+            - yarn
+            - cache store
+  - name: Build server
+    dependencies:
+      - Install dependencies
+    task:
+      jobs:
+        - name: Yarn build
+          commands:
+            - checkout
+            - cd fortunes-server
+            - cache restore
+            - yarn build
+            - cache store next-$SEMAPHORE_GIT_BRANCH .next
+  - name: Test server
+    dependencies:
+      - Build server
+    task:
+      prologue:
+        commands:
+          - checkout
+          - cd fortunes-server
+          - cache restore
+          - cache restore next-$SEMAPHORE_GIT_BRANCH
+      jobs:
+        - name: Test server
+          commands:
+            - jest
+promotions:
+  - name: Dockerize API
+    pipeline_file: pipeline_2.yml
+    auto_promote:
+      when: branch = 'master' AND result = 'passed'
