@@ -7,7 +7,7 @@ agent:
 blocks:
   - name: Build API
     run:
-      when: "change_in('/fortunes-api/')"
+      when: "change_in('/fortunes-api/', {default_branch: 'main'})"
     task:
       jobs:
         - name: Go build
@@ -23,7 +23,7 @@ blocks:
     dependencies: []
   - name: Test API
     run:
-      when: "change_in('/fortunes-api/')"
+      when: "change_in('/fortunes-api/', {default_branch: 'main'})"
     task:
       prologue:
         commands:
@@ -44,7 +44,7 @@ blocks:
       - Build API
   - name: Install dependencies
     run:
-      when: "change_in('/fortunes-server/')"
+      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
     dependencies: []
     task:
       jobs:
@@ -56,7 +56,7 @@ blocks:
             - cache store
   - name: Build server
     run:
-      when: "change_in('/fortunes-server/')"
+      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
     dependencies:
       - Install dependencies
     task:
@@ -84,7 +84,7 @@ blocks:
             - yarn test
   - name: Integration test
     run:
-      when: "change_in(['/fortunes-api/', '/fortunes-server/'])"
+      when: "change_in(['/fortunes-api/', '/fortunes-server/'], {default_branch: 'main'})"
     dependencies:
       - Test API
       - Test server
@@ -113,8 +113,8 @@ promotions:
   - name: Dockerize API
     pipeline_file: pipeline_2.yml
     auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-api/', '/fortunes-data/', '/dockerize/golang'])"
+      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-api/', '/fortunes-data/', '/dockerize/golang'], {default_branch: 'main'})"
   - name: Dockerize server
     pipeline_file: pipeline_3.yml
     auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-server/', '/dockerize/nextjs'])"
+      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-server/', '/dockerize/nextjs'], {default_branch: 'main'})"
