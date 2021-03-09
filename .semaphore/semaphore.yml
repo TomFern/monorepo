@@ -92,4 +92,4 @@ promotions:
   - name: Dockerize server
     pipeline_file: pipeline_3.yml
     auto_promote:
-      when: "branch = 'main' and result = 'passed'"
+      when: "branch = 'main' and result = 'passed' and change_in('/fortunes-server/', {default_branch: 'main'})"
