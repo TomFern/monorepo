@@ -69,6 +69,8 @@ blocks:
             - yarn build
             - cache store next-$SEMAPHORE_GIT_BRANCH .next
   - name: Test server
+    run:
+      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
     dependencies:
       - Build server
     task:
