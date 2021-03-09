@@ -84,35 +84,6 @@ blocks:
         - name: Test server
           commands:
             - yarn test
-  - name: Integration test
-    run:
-      when: "change_in(['/fortunes-api/', '/fortunes-server/'], {default_branch: 'main'})"
-    skip:
-      when: "true"
-    dependencies:
-      - Test API
-      - Test server
-    task:
-      prologue:
-        commands:
-          - sem-version go 1.16
-          - export GO111MODULE=on
-          - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
-          - checkout
-          - cd fortunes-api
-          - artifact pull workflow fortunes
-          - chmod a+x fortunes
-          - ./fortunes &
-          - cd ..
-          - checkout
-          - cd fortunes-server
-          - cache restore
-          - cache restore next-$SEMAPHORE_GIT_BRANCH
-      jobs:
-        - name: 'Job #1'
-          commands:
-            - 'true'
 promotions:
   - name: Dockerize API
     pipeline_file: pipeline_2.yml
