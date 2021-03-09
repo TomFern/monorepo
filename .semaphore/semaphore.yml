@@ -115,8 +115,8 @@ promotions:
   - name: Dockerize API
     pipeline_file: pipeline_2.yml
     auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-api/', '/fortunes-data/', '/dockerize/golang/'], {default_branch: 'main'})"
+      when: "branch = 'main' and result = 'passed' and change_in(['/fortunes-api/', '/fortunes-data/', '/dockerize/golang/'], {default_branch: 'main'})"
   - name: Dockerize server
     pipeline_file: pipeline_3.yml
     auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-server/', '/dockerize/nextjs/'], {default_branch: 'main'})"
+      when: "branch = 'main' and result = 'passed' and change_in(['/fortunes-server/', '/dockerize/nextjs/'], {default_branch: 'main'})"
