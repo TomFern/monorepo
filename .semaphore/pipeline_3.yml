@@ -1,0 +1,18 @@
+version: v1.0
+name: Docker build server
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Dockerize
+    task:
+      jobs:
+        - name: Docker build
+          commands:
+            - checkout
+            - cd fortunes-server
+            - cache restore
+            - cache restore next-$SEMAPHORE_GIT_BRANCH
+            - cp ../dockerize/nextjs/Dockerfile .
+            - docker build -t test-nextjs .
