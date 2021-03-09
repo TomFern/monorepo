@@ -6,6 +6,8 @@ agent:
     os_image: ubuntu1804
 blocks:
   - name: Build API
+    run:
+      when: "change_in('/fortunes-api/')"
     task:
       jobs:
         - name: Go build
@@ -20,6 +22,8 @@ blocks:
             - artifact push workflow fortunes
     dependencies: []
   - name: Test API
+    run:
+      when: "change_in('/fortunes-api/')"
     task:
       prologue:
         commands:
@@ -39,6 +43,8 @@ blocks:
     dependencies:
       - Build API
   - name: Install dependencies
+    run:
+      when: "change_in('/fortunes-server/')"
     dependencies: []
     task:
       jobs:
@@ -49,6 +55,8 @@ blocks:
             - yarn
             - cache store
   - name: Build server
+    run:
+      when: "change_in('/fortunes-server/')"
     dependencies:
       - Install dependencies
     task:
@@ -75,6 +83,8 @@ blocks:
           commands:
             - yarn test
   - name: Integration test
+    run:
+      when: "change_in(['/fortunes-api/', '/fortunes-server/'])"
     dependencies:
       - Test API
       - Test server
@@ -103,8 +113,8 @@ promotions:
   - name: Dockerize API
     pipeline_file: pipeline_2.yml
     auto_promote:
-      when: branch = 'master' AND result = 'passed'
+      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-api/', '/fortunes-data/', '/dockerize/golang'])"
   - name: Dockerize server
     pipeline_file: pipeline_3.yml
     auto_promote:
-      when: branch = 'master' AND result = 'passed'
+      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-server/', '/dockerize/nextjs'])"
