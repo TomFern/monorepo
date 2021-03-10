@@ -88,8 +88,6 @@ blocks:
   - name: Integration test
     run:
       when: "change_in(['/fortunes-api/', '/fortunes-server/'], {default_branch: 'main'})"
-    skip:
-      when: "true"
     dependencies:
       - Test API
       - Test server
