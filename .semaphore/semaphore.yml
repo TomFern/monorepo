@@ -7,7 +7,7 @@ agent:
 blocks:
   - name: Build Android App
     run:
-      when: 'change_in(''/fortunes-api/'', {default_branch: ''main''})'
+      when: 'change_in(''/android/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     task:
       jobs:
         - name: Build
@@ -16,16 +16,8 @@ blocks:
     dependencies: []
   - name: Test Android App
     run:
-      when: 'change_in(''/fortunes-api/'', {default_branch: ''main''})'
+      when: 'change_in(''/android/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     task:
-      prologue:
-        commands:
-          - sem-version go 1.16
-          - export GO111MODULE=on
-          - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
-          - checkout
-          - cd fortunes-api
       jobs:
         - name: Unit tests
           commands:
@@ -35,7 +27,7 @@ blocks:
       - Build Android App
   - name: Build iOS App
     run:
-      when: 'change_in(''/fortunes-server/'', {default_branch: ''main''})'
+      when: 'change_in(''/android/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     dependencies: []
     task:
       jobs:
@@ -44,7 +36,7 @@ blocks:
             - 'true'
   - name: Test iOS Aapp
     run:
-      when: 'change_in(''/fortunes-server/'', {default_branch: ''main''})'
+      when: 'change_in(''/ios/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     dependencies:
       - Build iOS App
     task:
@@ -53,6 +45,8 @@ blocks:
           commands: []
           parallelism: 3
   - name: Publish to Google Play
+    run:
+      when: 'change_in(''/android/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     dependencies:
       - Test Android App
     task:
@@ -60,7 +54,9 @@ blocks:
         - name: Publish
           commands:
             - 'true'
-  - name: Public to App Store
+  - name: Publish to App Store
+    run:
+      when: 'change_in(''/android/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     dependencies:
       - Test iOS Aapp
     task:
@@ -69,6 +65,8 @@ blocks:
           commands:
             - 'true'
   - name: Install Web Dependencies
+    run:
+      when: 'change_in(''/web/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     dependencies: []
     task:
       jobs:
@@ -76,6 +74,8 @@ blocks:
           commands:
             - 'true'
   - name: Tests
+    run:
+      when: 'change_in(''/web/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     dependencies:
       - Install Web Dependencies
     task:
@@ -90,6 +90,8 @@ blocks:
           commands:
             - 'true'
   - name: Deploy Website
+    run:
+      when: 'change_in(''/web/'', {default_branch: ''main'', pipeline_file: ''ignore''})'
     dependencies:
       - Tests
     task:
