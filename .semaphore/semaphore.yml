@@ -27,7 +27,7 @@ blocks:
       - Build Android App
   - name: Build iOS App
     run:
-      when: 'change_in(''/android/'', {default_branch: ''diagram'', pipeline_file: ''ignore''})'
+      when: 'change_in(''/ios/'', {default_branch: ''diagram'', pipeline_file: ''ignore''})'
     dependencies: []
     task:
       jobs:
@@ -56,9 +56,9 @@ blocks:
             - 'true'
   - name: Publish to App Store
     run:
-      when: 'change_in(''/android/'', {default_branch: ''diagram'', pipeline_file: ''ignore''})'
+      when: 'change_in(''/ios/'', {default_branch: ''diagram'', pipeline_file: ''ignore''})'
     dependencies:
-      - Test iOS Aapp
+      - Test iOS App
     task:
       jobs:
         - name: Publish
