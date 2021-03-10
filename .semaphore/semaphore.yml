@@ -5,119 +5,95 @@ agent:
     type: e1-standard-2
     os_image: ubuntu1804
 blocks:
-  - name: Build API
+  - name: Build Android App
     run:
-      when: "change_in('/fortunes-api/', {default_branch: 'main'})"
+      when: 'change_in(''/fortunes-api/'', {default_branch: ''main''})'
     task:
       jobs:
-        - name: Go build
-          commands:
-            - sem-version go 1.16
-            - export GO111MODULE=on
-            - export GOPATH=~/go
-            - 'export PATH=/home/semaphore/go/bin:$PATH'
-            - checkout
-            - cd fortunes-api
-            - go build .
-            - artifact push workflow fortunes
-            - artifact push project fortunes
-    dependencies: []
-  - name: Test API
-    run:
-      when: "change_in('/fortunes-api/', {default_branch: 'main'})"
-    task:
-      prologue:
-        commands:
-          - sem-version go 1.16
-          - export GO111MODULE=on
-          - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
-          - checkout
-          - cd fortunes-api
-      jobs:
-        - name: Unit test
-          commands:
-            - artifact pull workflow fortunes
-            - chmod a+x fortunes
-            - ./fortunes &
-            - go test ./...
-    dependencies:
-      - Build API
-  - name: Install dependencies
-    run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
-    dependencies: []
-    task:
-      jobs:
-        - name: Yarn install
-          commands:
-            - checkout
-            - cd fortunes-server
-            - yarn
-            - cache store
-  - name: Build server
-    run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
-    dependencies:
-      - Install dependencies
-    task:
-      jobs:
-        - name: Yarn build
-          commands:
-            - checkout
-            - cd fortunes-server
-            - cache restore
-            - yarn build
-            - cache store next-$SEMAPHORE_GIT_BRANCH .next
-  - name: Test server
-    run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
-    dependencies:
-      - Build server
-    task:
-      prologue:
-        commands:
-          - checkout
-          - cd fortunes-server
-          - cache restore
-          - cache restore next-$SEMAPHORE_GIT_BRANCH
-      jobs:
-        - name: Test server
-          commands:
-            - yarn test
-  - name: Integration test
-    run:
-      when: "change_in(['/fortunes-api/', '/fortunes-server/'], {default_branch: 'main'})"
-    dependencies:
-      - Test API
-      - Test server
-    task:
-      prologue:
-        commands:
-          - sem-version go 1.16
-          - export GO111MODULE=on
-          - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
-          - checkout
-          - cd fortunes-api
-          - 'artifact pull workflow fortunes || artifact pull project fortunes'
-          - chmod a+x fortunes
-          - ./fortunes &
-          - cd ..
-          - checkout
-          - cd fortunes-server
-          - cache restore
-          - cache restore next-$SEMAPHORE_GIT_BRANCH
-      jobs:
-        - name: 'Job #1'
+        - name: Build
           commands:
             - 'true'
-promotions:
-  - name: Dockerize API
-    pipeline_file: pipeline_2.yml
-    auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in('/dockerize/', {default_branch: 'main'})"
-  - name: Dockerize server
-    pipeline_file: pipeline_3.yml
-    auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-server/', '/fortunes-api/'], {default_branch: 'main'})"
+    dependencies: []
+  - name: Test Android App
+    run:
+      when: 'change_in(''/fortunes-api/'', {default_branch: ''main''})'
+    task:
+      prologue:
+        commands:
+          - sem-version go 1.16
+          - export GO111MODULE=on
+          - export GOPATH=~/go
+          - 'export PATH=/home/semaphore/go/bin:$PATH'
+          - checkout
+          - cd fortunes-api
+      jobs:
+        - name: Unit tests
+          commands:
+            - 'true'
+          parallelism: 2
+    dependencies:
+      - Build Android App
+  - name: Build iOS App
+    run:
+      when: 'change_in(''/fortunes-server/'', {default_branch: ''main''})'
+    dependencies: []
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - 'true'
+  - name: Test iOS Aapp
+    run:
+      when: 'change_in(''/fortunes-server/'', {default_branch: ''main''})'
+    dependencies:
+      - Build iOS App
+    task:
+      jobs:
+        - name: Run Tests
+          commands: []
+          parallelism: 3
+  - name: Publish to Google Play
+    dependencies:
+      - Test Android App
+    task:
+      jobs:
+        - name: Publish
+          commands:
+            - 'true'
+  - name: Public to App Store
+    dependencies:
+      - Test iOS Aapp
+    task:
+      jobs:
+        - name: Publish
+          commands:
+            - 'true'
+  - name: Install Web Dependencies
+    dependencies: []
+    task:
+      jobs:
+        - name: Bundle install
+          commands:
+            - 'true'
+  - name: Tests
+    dependencies:
+      - Install Web Dependencies
+    task:
+      jobs:
+        - name: Unit tests
+          commands:
+            - 'true'
+        - name: Integration tests
+          commands:
+            - 'true'
+        - name: Static tests
+          commands:
+            - 'true'
+  - name: Deploy Website
+    dependencies:
+      - Tests
+    task:
+      jobs:
+        - name: Deploy to prod
+          commands:
+            - 'true'
