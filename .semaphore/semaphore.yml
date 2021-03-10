@@ -34,7 +34,7 @@ blocks:
         - name: Build
           commands:
             - 'true'
-  - name: Test iOS Aapp
+  - name: Test iOS App
     run:
       when: 'change_in(''/ios/'', {default_branch: ''diagram'', pipeline_file: ''ignore''})'
     dependencies:
