@@ -12,7 +12,7 @@ blocks:
           commands:
             - checkout
             - cd dockerize/golang
-            - artifact pull workflow fortunes
+            - 'artifact pull workflow fortunes || artifact pull project fortunes'
             - cp ../../fortunes-data/* .
             - mv fortunes app
             - docker build -t test-go .
