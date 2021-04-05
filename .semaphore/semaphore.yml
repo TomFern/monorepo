@@ -12,10 +12,11 @@ blocks:
     task:
       jobs:
         - commands:
-            - checkout
-            - cd web-app
-            - make test
-          name: Nameless 1
+            - Test
+            - '# checkout'
+            - '# cd web-app'
+            - '# make test'
+          name: Unit tests
   - name: Test iOS client
     dependencies: []
     run:
@@ -27,10 +28,11 @@ blocks:
           os_image: macos-xcode12
       jobs:
         - commands:
-            - checkout
-            - cd ios
-            - make test
-          name: Nameless 1
+            - 'true'
+            - '# checkout'
+            - '# cd ios'
+            - '# make test'
+          name: Unit tests
   - name: Test docs page
     dependencies: []
     run:
@@ -38,10 +40,11 @@ blocks:
     task:
       jobs:
         - commands:
-            - checkout
-            - cd docs
-            - make test
-          name: Nameless 1
+            - 'true'
+            - '# checkout'
+            - '# cd docs'
+            - '# make test'
+          name: Test
   - name: Integration tests
     dependencies:
       - Test WEB server
@@ -51,6 +54,7 @@ blocks:
     task:
       jobs:
         - commands:
-            - checkout
-            - make integration-tests
-          name: Nameless 1
+            - 'true'
+            - '# checkout'
+            - '# make integration-tests'
+          name: Run test
