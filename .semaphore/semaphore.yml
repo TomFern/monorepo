@@ -12,7 +12,7 @@ blocks:
     task:
       jobs:
         - commands:
-            - Test
+            - 'true'
             - '# checkout'
             - '# cd web-app'
             - '# make test'
