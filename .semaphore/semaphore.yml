@@ -1,123 +1,56 @@
 version: v1.0
-name: Continuous Integration Pipeline
+name: Monorepo project
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
 blocks:
-  - name: Build API
-    run:
-      when: "change_in('/fortunes-api/', {default_branch: 'main'})"
-    task:
-      jobs:
-        - name: Go build
-          commands:
-            - sem-version go 1.16
-            - export GO111MODULE=on
-            - export GOPATH=~/go
-            - 'export PATH=/home/semaphore/go/bin:$PATH'
-            - checkout
-            - cd fortunes-api
-            - go build .
-            - artifact push workflow fortunes
-            - artifact push project fortunes
+  - name: Test WEB server
     dependencies: []
-  - name: Test API
     run:
-      when: "change_in('/fortunes-api/', {default_branch: 'main'})"
+      when: change_in('/web-app/')
     task:
-      prologue:
-        commands:
-          - sem-version go 1.16
-          - export GO111MODULE=on
-          - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
-          - checkout
-          - cd fortunes-api
       jobs:
-        - name: Unit test
-          commands:
-            - artifact pull workflow fortunes
-            - chmod a+x fortunes
-            - ./fortunes &
-            - go test ./...
-    dependencies:
-      - Build API
-  - name: Install dependencies
-    run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
+        - commands:
+            - checkout
+            - cd web-app
+            - make test
+          name: Nameless 1
+  - name: Test iOS client
     dependencies: []
+    run:
+      when: change_in('/ios/')
     task:
+      agent:
+        machine:
+          type: a1-standard-4
+          os_image: macos-xcode12
       jobs:
-        - name: Yarn install
-          commands:
+        - commands:
             - checkout
-            - cd fortunes-server
-            - yarn
-            - cache store
-  - name: Build server
+            - cd ios
+            - make test
+          name: Nameless 1
+  - name: Test docs page
+    dependencies: []
     run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
-    dependencies:
-      - Install dependencies
+      when: change_in('/docs/')
     task:
       jobs:
-        - name: Yarn build
-          commands:
+        - commands:
             - checkout
-            - cd fortunes-server
-            - cache restore
-            - yarn build
-            - cache store next-$SEMAPHORE_GIT_BRANCH .next
-  - name: Test server
-    run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
+            - cd docs
+            - make test
+          name: Nameless 1
+  - name: Integration tests
     dependencies:
-      - Build server
-    task:
-      prologue:
-        commands:
-          - checkout
-          - cd fortunes-server
-          - cache restore
-          - cache restore next-$SEMAPHORE_GIT_BRANCH
-      jobs:
-        - name: Test server
-          commands:
-            - yarn test
-  - name: Integration test
+      - Test WEB server
+      - Test iOS client
     run:
-      when: "change_in(['/fortunes-api/', '/fortunes-server/'], {default_branch: 'main'})"
-    dependencies:
-      - Test API
-      - Test server
+      when: 'change_in([''/web-app/'', ''/ios/''])'
     task:
-      prologue:
-        commands:
-          - sem-version go 1.16
-          - export GO111MODULE=on
-          - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
-          - checkout
-          - cd fortunes-api
-          - 'artifact pull workflow fortunes || artifact pull project fortunes'
-          - chmod a+x fortunes
-          - ./fortunes &
-          - cd ..
-          - checkout
-          - cd fortunes-server
-          - cache restore
-          - cache restore next-$SEMAPHORE_GIT_BRANCH
       jobs:
-        - name: 'Job #1'
-          commands:
-            - 'true'
-promotions:
-  - name: Dockerize API
-    pipeline_file: pipeline_2.yml
-    auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in('/dockerize/', {default_branch: 'main'})"
-  - name: Dockerize server
-    pipeline_file: pipeline_3.yml
-    auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-server/', '/fortunes-api/'], {default_branch: 'main'})"
+        - commands:
+            - checkout
+            - make integration-tests
+          name: Nameless 1
