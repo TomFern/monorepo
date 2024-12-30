@@ -2,17 +2,19 @@ version: v1.0
 name: Continuous Integration Pipeline
 agent:
   machine:
-    type: e1-standard-2
-    os_image: ubuntu2004
+    type: s1-kubernetes
+    os_image: ''
+  containers:
+    - name: main
+      image: 'semaphoreci/ubuntu:20.04'
 blocks:
   - name: Build API
     run:
-      when: "change_in('/fortunes-api/', {default_branch: 'main'})"
+      when: 'change_in(''/fortunes-api/'', {default_branch: ''main''})'
     task:
       jobs:
         - name: Go build
           commands:
-            - sem-version go 1.16
             - export GO111MODULE=on
             - export GOPATH=~/go
             - 'export PATH=/home/semaphore/go/bin:$PATH'
@@ -24,7 +26,7 @@ blocks:
     dependencies: []
   - name: Test API
     run:
-      when: "change_in('/fortunes-api/', {default_branch: 'main'})"
+      when: 'change_in(''/fortunes-api/'', {default_branch: ''main''})'
     task:
       prologue:
         commands:
@@ -45,7 +47,7 @@ blocks:
       - Build API
   - name: Install dependencies
     run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
+      when: 'change_in(''/fortunes-server/'', {default_branch: ''main''})'
     dependencies: []
     task:
       jobs:
@@ -57,7 +59,7 @@ blocks:
             - cache store
   - name: Build server
     run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
+      when: 'change_in(''/fortunes-server/'', {default_branch: ''main''})'
     dependencies:
       - Install dependencies
     task:
@@ -71,7 +73,7 @@ blocks:
             - cache store next-$SEMAPHORE_GIT_BRANCH .next
   - name: Test server
     run:
-      when: "change_in('/fortunes-server/', {default_branch: 'main'})"
+      when: 'change_in(''/fortunes-server/'', {default_branch: ''main''})'
     dependencies:
       - Build server
     task:
@@ -87,7 +89,7 @@ blocks:
             - yarn test
   - name: Integration test
     run:
-      when: "change_in(['/fortunes-api/', '/fortunes-server/'], {default_branch: 'main'})"
+      when: 'change_in([''/fortunes-api/'', ''/fortunes-server/''], {default_branch: ''main''})'
     dependencies:
       - Test API
       - Test server
@@ -100,7 +102,7 @@ blocks:
           - 'export PATH=/home/semaphore/go/bin:$PATH'
           - checkout
           - cd fortunes-api
-          - 'artifact pull workflow fortunes || artifact pull project fortunes'
+          - artifact pull workflow fortunes || artifact pull project fortunes
           - chmod a+x fortunes
           - ./fortunes &
           - cd ..
@@ -116,8 +118,8 @@ promotions:
   - name: Dockerize API
     pipeline_file: pipeline_2.yml
     auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in('/dockerize/', {default_branch: 'main'})"
+      when: 'branch = ''main'' AND result = ''passed'' AND change_in(''/dockerize/'', {default_branch: ''main''})'
   - name: Dockerize server
     pipeline_file: pipeline_3.yml
     auto_promote:
-      when: "branch = 'main' AND result = 'passed' AND change_in(['/fortunes-server/', '/fortunes-api/'], {default_branch: 'main'})"
+      when: 'branch = ''main'' AND result = ''passed'' AND change_in([''/fortunes-server/'', ''/fortunes-api/''], {default_branch: ''main''})'
