@@ -114,12 +114,3 @@ blocks:
         - name: 'Job #1'
           commands:
             - 'true'
-promotions:
-  - name: Dockerize API
-    pipeline_file: pipeline_2.yml
-    auto_promote:
-      when: 'branch = ''main'' AND result = ''passed'' AND change_in(''/dockerize/'', {default_branch: ''main''})'
-  - name: Dockerize server
-    pipeline_file: pipeline_3.yml
-    auto_promote:
-      when: 'branch = ''main'' AND result = ''passed'' AND change_in([''/fortunes-server/'', ''/fortunes-api/''], {default_branch: ''main''})'
